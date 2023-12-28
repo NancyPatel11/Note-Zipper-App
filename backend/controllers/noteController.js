@@ -78,7 +78,7 @@ const deleteNote = asyncHandler(async (req, res) => {
   } else {
     await Note.findByIdAndDelete(req.params.id);
 
-    res.status(200).json({ message: "Note removed" });
+    res.status(200).json({ message: "Note removed", id: req.params.id });
   }
 });
 
