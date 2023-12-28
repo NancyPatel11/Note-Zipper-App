@@ -7,13 +7,15 @@ import {
   Navbar,
   NavDropdown,
 } from "react-bootstrap";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { logout, reset } from "../features/auth/authSlice";
 
 function Header({ setSearch }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const { userInfo } = useSelector((state) => state.auth);
 
   const logoutHandler = () => {
     dispatch(logout());
@@ -40,17 +42,29 @@ function Header({ setSearch }) {
               />
             </Form>
           </Nav>
-          <Nav>
-            <Nav.Link href="/mynotes">
-              <Link to="/mynotes">My Notes</Link>
-            </Nav.Link>
-            <NavDropdown title="User" id="collasible-nav-dropdown">
-              <NavDropdown.Item href="#action/3.1">My Profile</NavDropdown.Item>
-              <NavDropdown.Item onClick={logoutHandler}>
-                Logout
-              </NavDropdown.Item>
-            </NavDropdown>
-          </Nav>
+
+          {userInfo ? (
+            <Nav>
+              <Nav.Link href="/mynotes">
+                <Link to="/mynotes">My Notes</Link>
+              </Nav.Link>
+              <NavDropdown title={userInfo?.name} id="collasible-nav-dropdown">
+                <NavDropdown.Item onClick={() => navigate("/profile")}>
+                  My Profile
+                </NavDropdown.Item>
+                <NavDropdown.Item onClick={logoutHandler}>
+                  Logout
+                </NavDropdown.Item>
+              </NavDropdown>
+            </Nav>
+          ) : (
+            <Nav>
+              <Nav.Link>
+                {" "}
+                <Link to="/login">Login</Link>
+              </Nav.Link>
+            </Nav>
+          )}
         </Navbar.Collapse>
       </Container>
     </Navbar>

@@ -65,4 +65,52 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { registerUser, loginUser };
+const updateUserProfile = asyncHandler(async (req, res) => {
+  const existingUser = await User.findById(req.user._id);
+
+  if (existingUser) {
+    existingUser.name = req.body.name || existingUser.name;
+
+    const { email } = req.body;
+    if (existingUser.email !== email) {
+      const userExists = await User.findOne({ email });
+      if (userExists) {
+        res.status(400);
+        throw new Error("User Email Already Exists");
+      }
+      existingUser.email = email;
+    }
+
+    existingUser.pic = req.body.pic || existingUser.pic;
+
+    console.log(existingUser.email);
+    console.log(existingUser.pic);
+
+    if (req.body.password) {
+      existingUser.password = req.body.password;
+    }
+
+    const userData = {
+      name: existingUser.name,
+      email: existingUser.email,
+      pic: existingUser.pic,
+    };
+
+    const updatedUser = await User.findByIdAndUpdate(req.user._id, userData, {
+      new: true,
+    });
+
+    res.json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      pic: updatedUser.pic,
+      token: generateToken(updatedUser._id),
+    });
+  } else {
+    res.status(404);
+    throw new Error("User not found");
+  }
+});
+
+module.exports = { registerUser, loginUser, updateUserProfile };
